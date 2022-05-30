@@ -1,0 +1,81 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '2.1.5.RELEASE'
+}
+
+// apply
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+
+group 'kr.co.gemtek'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+
+
+repositories {
+	// mavenCentral 이전부터 많이 사용하는 저장소 본인이 만든 저장소를 업로드하기 위해 많은 과정 및 설정을 요해 점차 공유가 잘 안된다.
+    mavenCentral()
+    
+    // jcenter mavenCentral의 문제점을 개선 라이브러리 업로드가 간단 jcenter에 업로드하면 mavenCentral에도 업로드되도록 자동화 가능
+    // jcenter()    
+}
+
+
+
+configurations {
+    developmentOnly
+    runtimeClasspath {
+        extendsFrom developmentOnly
+    }
+}
+
+
+dependencies{
+    // spring boot
+    implementation 'org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.1.5.RELEASE'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.0.1'
+    // JSON
+    implementation 'com.alibaba:fastjson:1.2.58'
+    //implementation 'com.google.code.gson:gson:2.3.1'
+    //compile 'com.google.code.gson:gson:2.3.1'
+
+    //compile group: 'com.google.code.gson', name: 'gson', version: '2.8.2'
+
+    // DB
+    runtimeOnly 'mysql:mysql-connector-java'
+    compile group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.2.1'
+    // apache common libs
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.1'
+
+    compile("org.springframework.boot:spring-boot-starter-web")
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+
+    //test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+
+    //log4j core 2.17.0
+    implementation 'org.apache.logging.log4j:log4j-core:2.17.0'
+
+    //logback 1.2.9
+    implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.2.9'
+    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.9'
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.32'
+    implementation group: 'org.slf4j', name: 'jul-to-slf4j', version: '1.7.32'
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-to-slf4j', version: '2.16.0'
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.16.0'
+
+}
+
+bootJar {
+    mainClassName = 'kr.co.gmgo.rcs.api.biz.Application'
+}

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.gmgo.rcs.api.biz.mapper.BrandMapper">
+
+    <!-- <insert id="insertFile" parameterType="map">
+         insert into brand_file(
+             brand_id, file_id, file_url, type_name, file_reg_dt, reg_dt
+         )values(
+             #{brand_id}, #{file_id}, #{file_url}, #{type_name}, DATE_format(#{file_reg_dt}, '%Y-%m-%d %T'), NOW()
+         )
+     </insert>-->
+    <select id="selectMaxIdx" parameterType="String" resultType="String">
+        SELECT max(idx) FROM brand_file
+    </select>
+
+    <insert id="insertBrand" parameterType="map">
+        INSERT INTO BRAND(
+        brand_id, brand_name, brand_reg_dt, reg_dt, status, update_dt, brand_key
+        <if test="corp_id neq null and corp_id neq ''">
+            ,corp_id
+        </if>
+        )VALUES(
+        #{brandId}, #{brand_name}, DATE_format(#{brand_reg_dt}, '%Y-%m-%d %T'), DATE_format(NOW(), '%Y-%m-%d %T'),
+        #{status},  DATE_format(#{update_dt}, '%Y-%m-%d %T'),  #{brand_key}
+        <if test="corp_id neq null and corp_id neq ''">
+            ,#{corp_id}
+        </if>
+        )
+    </insert>
+
+
+    <update id="updateBrand" parameterType="map">
+        UPDATE BRAND SET
+        BRAND_NAME = #{brand_name},
+        BRAND_REG_DT = DATE_format(#{brand_reg_dt}, '%Y-%m-%d %T'),
+        REG_DT = NOW(),
+        STATUS = #{status},
+        update_dt = #{update_dt},
+        brand_key = #{brand_key},
+        MOD_DT = DATE_format(NOW(), '%Y-%m-%d %T'),
+        DEL_YN = 1
+        <if test="corp_id neq null and corp_id neq ''">
+            ,CORP_ID = #{corp_id}
+        </if>
+        WHERE
+        BRAND_ID = #{brandId}
+        AND DATE_format(REG_DT, '%Y-%m-%d') = DATE_format(now(), '%Y-%m-%d')
+    </update>
+
+
+    <select id="selectBrandIdInbrand" parameterType="string" resultType="integer">
+        SELECT count(*) FROM BRAND PARTITION(${partition})
+        WHERE BRAND_ID = #{brandId}
+    </select>
+
+    <select id="selectBrandKey" parameterType="string" resultType="string">
+        SELECT BRAND_KEY FROM BRAND WHERE BRAND_ID = #{brandId}
+        AND BRAND_KEY IS NOT NULL
+        GROUP BY BRAND_KEY
+    </select>
+
+
+    <!--브랜드 리스트 INSERT-->
+    <insert id="insertBrandAuto" parameterType="map">
+        LOAD DATA LOCAL INFILE #{data} INTO TABLE BRAND
+        character set utf8
+        FIELDS TERMINATED BY "`[$*#!@^]`"
+        LINES TERMINATED BY "`{$*@%}`"
+        IGNORE 1 LINES
+        (@brand_key, @brand_reg_dt, @update_dt,  @brand_name, @corp_id, @brand_id, @status,  @reg_dt) set
+        `brand_key` = @brand_key, `brand_reg_dt` = @brand_reg_dt, `update_dt` = @update_dt,
+        `corp_id` = @corp_id, `brand_name` = @brand_name,  `brand_id` = @brand_id,
+        `status` = @status, `reg_dt` = #{regDate}
+    </insert>
+
+    <insert id="insertBrandFileAuto" parameterType="string">
+        LOAD DATA LOCAL INFILE #{value} INTO TABLE BRAND_FILE
+        character set utf8
+        FIELDS TERMINATED BY "`[$*#!@^]`"
+        LINES TERMINATED BY "`{$*@%}`"
+        IGNORE 1 LINES
+        (@file_url, @file_reg_dt,  @type_name, @file_id, @brand_id,  @reg_dt) set
+        `file_url` = @file_url, `file_reg_dt` = @file_reg_dt,
+        `type_name` = @type_name, `file_id` = @file_id,  `brand_id` = @brand_id, `reg_dt` =  NOW()
+    </insert>
+
+    <select id="selectBrandIdList" resultType="map">
+        SELECT BRAND_ID, BRAND_KEY
+        FROM BRAND
+        PARTITION(${value})
+        WHERE BRAND_KEY IS NOT NULL
+        AND DEL_YN = 1
+    </select>
+
+    <update id="updateBrandDelete" parameterType="map">
+        UPDATE BRAND  PARTITION(${partition}) SET
+        DEL_YN  = 0,
+        MOD_DT = DATE_format(NOW(), '%Y-%m-%d %T')
+        WHERE
+        BRAND_ID = #{brandId}
+    </update>
+
+    <select id="getBrandList" parameterType="map" resultType="map">
+        SELECT
+        BRAND_ID,
+        IFNULL(BRAND_KEY,"") BRAND_KEY,
+        BRAND_NAME,
+        BRAND_REG_DT,
+        IFNULL(UPDATE_DT,"") UPDATE_DT,
+        STATUS,
+        IFNULL(MOD_DT,"") MOD_DT,
+        DEL_YN
+        FROM BRAND partition(${partition})
+        <if test="brandId neq null">
+            WHERE BRAND_ID = #{brandId}
+        </if>
+        ORDER BY Brand_ID
+    </select>
+
+    <select id="selectBrandUpdateChk" parameterType="string" resultType="integer">
+        SELECT COUNT(*) FROM BRAND PARTITION(${partition})
+        WHERE CONCAT(brand_key,BRAND_NAME,STATUS) = #{concat}
+        AND brand_id  = #{brandId}
+    </select>
+
+</mapper>

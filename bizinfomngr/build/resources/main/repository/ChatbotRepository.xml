@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.gmgo.rcs.api.biz.mapper.ChatbotMapper">
+
+    <select id="selectChatbotId" parameterType="string" resultType="integer">
+        SELECT count(*) from CHATBOT WHERE CHATBOT_ID = #{chatbotId}
+        AND DATE_format(REG_DT, '%Y-%m-%d') = DATE_format(NOW(), '%Y-%m-%d')
+    </select>
+
+    <update id="updateChatbot" parameterType="map">
+        UPDATE CHATBOT SET
+        UPDATE_ID = #{update_id},
+        APPROVAL_RESULT = #{approval_result},
+        SUB_TITLE = #{sub_title},
+        <if test='approval_dt != null and approval_dt != "null" and approval_dt != ""'>
+            APPROVAL_DT = #{approval_dt},
+        </if>
+        MAIN_NUM = #{main_num},
+        SERVICE = #{service},
+        DISPLAY = #{display},
+        <if test='update_dt != null and update_dt != "null" and update_dt != ""'>
+            UPDATE_DT = DATE_format(#{update_dt}, '%Y-%m-%d %T'),
+        </if>
+        REG_ID = #{reg_id},
+        BRAND_ID = #{brand_id},
+        SUB_NUM = #{sub_num},
+        CHATBOT_REG_DT = DATE_format(#{chatbot_reg_dt}, '%Y-%m-%d %T'),
+        MOD_DT = DATE_format(NOW(), '%Y-%m-%d %T'),
+        DEL_YN = 1
+        WHERE
+        CHATBOT_ID = #{chatbot_id}
+        AND DATE_format(REG_DT, '%Y-%m-%d') = DATE_format(now(), '%Y-%m-%d')
+    </update>
+
+    <insert id="insertChatbot" parameterType="map">
+        INSERT INTO CHATBOT(
+        chatbot_id, brand_id, sub_num, main_num, sub_title, display,
+        <if test='approval_result != null and approval_result != "null" and approval_result != ""'>
+            approval_result,
+        </if>
+        chatbot_reg_dt,
+        <if test='approval_dt != null and approval_dt != "null" and approval_dt != ""'>
+            approval_dt,
+        </if>
+        update_dt,
+        reg_dt, update_id, service, reg_id
+        )VALUES(
+        #{chatbot_id}, #{brand_id}, #{sub_num}, #{main_num}, #{sub_title}, #{display},
+        <if test='approval_result != null and approval_result != "null" and approval_result != ""'>
+            #{approval_result},
+        </if>
+        DATE_format(#{chatbot_reg_dt}, '%Y-%m-%d %T'),
+        <if test='approval_dt != null and approval_dt != "null" and approval_dt != ""'>
+            DATE_format(#{approval_dt}, '%Y-%m-%d %T'),
+        </if>
+        DATE_format(#{update_dt}, '%Y-%m-%d %T'),
+        NOW(), #{update_id}, #{service}, #{reg_id}
+        )
+    </insert>
+
+    <insert id="insertChatbotAuto" parameterType="map">
+        LOAD DATA LOCAL INFILE #{data} INTO TABLE CHATBOT
+        character set utf8
+        FIELDS TERMINATED BY "`[$*#!@^]`"
+        LINES TERMINATED BY "`{$*@%}`"
+        IGNORE 1 LINES
+        (@update_id,
+        @sub_num,
+        @sub_title,
+        @main_num,
+        @display,
+        @chatbot_id,
+        @reg_id,
+        @brand_id,
+        @chatbot_reg_dt,
+        @approval_result,
+        @approval_dt,
+        @service,
+        @update_dt,
+        @reg_dt)
+        SET
+        `update_id` = @update_id, `sub_num` = @sub_num, `sub_title` = @sub_title, `main_num` = @main_num,
+        `display` = @display, `chatbot_id` = @chatbot_id, `reg_id` = @reg_id, `brand_id` = @brand_id,
+        `chatbot_reg_dt` = @chatbot_reg_dt,  `approval_result` = @approval_result, `approval_dt` = @approval_dt,
+        `service` = @service,  `update_dt` = @update_dt, `reg_dt` = #{regDate}
+    </insert>
+
+    <insert id="insertChatbots" parameterType="string">
+        LOAD DATA LOCAL INFILE #{value} INTO TABLE CHATBOT
+        character set utf8
+        FIELDS TERMINATED BY "`[$*#!@^]`"
+        LINES TERMINATED BY "`{$*@%}`"
+        IGNORE 1 LINES
+        (@update_id, @sub_num, @sub_title, @main_num, @display, @chatbot_id, @reg_id, @brand_id
+        , @approval_result, @chatbot_reg_dt, @approval_dt, @service, @update_dt, @reg_dt) set
+        `update_id` = @update_id, `sub_num` = @sub_num,  `sub_title` = @sub_title,
+        `main_num` = @main_num, `display` = @display,  `chatbot_id` = @chatbot_id,
+        `reg_id` = @reg_id, `brand_id` = @brand_id,  `approval_result` = @approval_result,
+        `chatbot_reg_dt` = @chatbot_reg_dt, `approval_dt` = @approval_dt, `update_dt` = @update_dt, `reg_dt` = Now()
+    </insert>
+
+    <update id="updateChatbotDelete" parameterType="map">
+        UPDATE CHATBOT PARTITION(${partition}) SET
+        DEL_YN  = 0,
+        MOD_DT = DATE_format(NOW(), '%Y-%m-%d %T')
+        WHERE 1=1
+        <if test="chatbotId neq null">
+            AND CHATBOT_ID in (${chatbotId})
+        </if>
+        <if test="brandId neq null">
+            AND BRAND_ID = #{brandId}
+        </if>
+
+    </update>
+
+    <!--오늘, 전일 일자에 해당하는 템플릿 컬럼정보 concat하여 가져오기 List로 담아서 오기-->
+    <select id="todayChatList" parameterType="map" resultType="map">
+        SELECT
+        CHATBOT_ID
+        <if test="del_yn eq null">
+            ,CONCAT_WS(CHATBOT_ID,BRAND_ID,APPROVAL_RESULT,DEL_YN)AS colAll
+        </if>
+        FROM CHATBOT partition(${partition})
+        WHERE 1=1
+        <if test="notInId neq null">
+            AND CHATBOT_ID not in(${notInId})
+        </if>
+        <if test="del_yn neq null">
+            AND brand_id = #{brand_id}
+            AND del_yn ='1'
+        </if>
+    </select>
+
+    <select id="selectDelChat" parameterType="map" resultType="string">
+        SELECT group_concat(CHATBOT_ID)
+        FROM CHATBOT partition(${yesterday})
+        WHERE CHATBOT_ID not in (
+        SELECT CHATBOT_ID FROM CHATBOT partition(${today}))
+    </select>
+
+    <select id="selectNewChat" parameterType="map" resultType="string">
+        SELECT group_concat(CHATBOT_ID)
+        FROM CHATBOT partition(${today})
+        WHERE CHATBOT_ID NOT IN (
+        SELECT CHATBOT_ID FROM CHATBOT partition(${yesterday}))
+        AND del_yn = 1
+    </select>
+
+    <select id="selectDelChatList" resultType="string">
+        SELECT group_concat(CHATBOT_ID)as chatList
+        FROM CHATBOT PARTITION(${partition})
+        WHERE BRAND_ID = #{brandId}
+    </select>
+
+    <select id="selectChatbotUpdateChk" parameterType="string" resultType="integer">
+        SELECT COUNT(*) FROM CHATBOT PARTITION(${partition})
+        WHERE CONCAT(brand_id,APPROVAL_RESULT) = #{concat}
+        AND CHATBOT_ID  = #{chatbot_id}
+    </select>
+
+</mapper>

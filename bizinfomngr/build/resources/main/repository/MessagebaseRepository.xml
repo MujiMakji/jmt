@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.gmgo.rcs.api.biz.mapper.MessageMapper">
+
+
+    <select id="selectMessagebaseId" parameterType="String" resultType="String">
+        SELECT brand_key FROM BRAND WHERE brand_id = #{brand_id}
+    </select>
+
+    <insert id="insertBtn" parameterType="Map">
+        INSERT INTO Template_btn(
+        messagebase_id, btn_type, btn_name, btn_link, btn_num, btn_reg_dt, reg_dt
+        )VALUES(
+        #{messagebase_id}, #{btn_type}, #{btn_name}, #{btn_link}, #{btn_num}, DATE_format(#{btn_reg_dt}, '%Y-%m-%d %T'), NOW()
+        )
+
+    </insert>
+
+    <select id="selectBtnMaxIdx" parameterType="String" resultType="String">
+        SELECT max(idx) FROM TEMPLATE_BTN
+    </select>
+
+    <insert id="insertTemplate" parameterType="Map">
+        INSERT INTO TEMPLATE(
+        messagebase_id, template_name, messagebase_form_id, brand_id, status,
+        approval_result, approval_reason,template_reg_dt,approval_dt,update_dt,
+        product_code, spec, card_type, btn_idx, reg_dt , reg_id ,input_text
+        )VALUES(
+        #{messagebase_id}, #{template_name}, #{messagebase_form_id}, #{brand_id}, #{status},
+        #{approval_result}, #{approval_reason}, DATE_format(#{template_reg_dt}, '%Y-%m-%d %T'),
+        DATE_format(#{approval_dt}, '%Y-%m-%d %T'), DATE_format(#{update_dt}, '%Y-%m-%d %T'),
+        #{product_code}, #{spec}, #{card_type}, #{btn_idx}, NOW(), #{reg_id}, #{input_text}
+        )
+    </insert>
+
+</mapper>

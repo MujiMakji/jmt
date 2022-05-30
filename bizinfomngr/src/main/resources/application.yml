@@ -1,0 +1,84 @@
+server:
+  #TEST 192.168.0.208
+#  port: 6443
+
+  #real
+  port: 8203
+
+
+  ssl:
+    enabled: true
+    ciphers: ECDHE-RSA-AES128-SHA256, ECDHE-RSA-AES128-SHA, DHE-RSA-AES128-GCM-SHA256, DHE-RSA-AES128-SHA256, DHE-RSA-AES128-SHA
+    
+    #상용 1.240.13.203
+#    key-store: /home/rcsmsg/biz/__gmgo_co_kr.jks
+#    key-store-password: gmgo4403
+#    enabled-protocols: TLSv1.2
+#    key-store-type: JKS
+
+    #테스트 서버 192.168.0.208
+#    key-store: /home/rcsmsg/biz/__gmgo_co_kr.jks
+#    key-store-password: gmgo4403
+#    enabled-protocols: TLSv1.2
+#    key-store-type: JKS
+
+    #개발 -- 확인 필요 문서에는 개발기에 대한 정보 없
+#    key-store: /home/rcsmsg/biz/__gmgo_co_kr.jks
+#    key-store-password: gmgo4403
+#    enabled-protocols: TLSv1.2
+#    key-store-type: JKS
+
+    #local
+#    key-store: C:\TestFolder\jks\__gmgo_co_kr.jks
+    key-store: /Users/kimminsoo/Company/C5.WaveNet/gemtek/Project/1.RCS/1.SRC/2.GEMTEK/bizinfomngr/jks\__gmgo_co_kr.jks
+    key-store-password: gmgo4403
+    enabled-protocols: TLSv1.2
+    key-store-type: JKS
+
+
+spring:
+  datasource:
+    #192.168.0.208
+#    url: jdbc:mysql://localhost:8100/RCS?serverTimezone=Asia/Seoul&useSSL=false&allowLoadLocalInfile=true&characterEncoding=UTF-8
+#    username: rcsUser
+#    password: wpaxprDev09*
+
+    #1.240.13.203:8100
+#    url: jdbc:mysql://localhost:8100/RCS?serverTimezone=Asia/Seoul&useSSL=false&allowLoadLocalInfile=true&characterEncoding=UTF-8&autoReconnect=true
+#    username: rcsUser
+#    password: Gemtek!4403
+
+    #local
+#    url: jdbc:mysql://127.0.0.1:3306/rcs?serverTimezone=Asia/Seoul&useSSL=false&allowLoadLocalInfile=true&characterEncoding=UTF-8&autoReconnect=true
+    url: jdbc:mysql://127.0.0.1:3306/RCS_LOCAL?serverTimezone=Asia/Seoul&useSSL=false&allowLoadLocalInfile=true&characterEncoding=UTF-8&autoReconnect=true
+    username: root
+    password: 123456
+
+
+
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    show-sql: true
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+      format_sql: true
+    http:
+      encoding:
+        charset: UTF-8
+        enabled: true
+        force: true
+  #  driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+    validation-query: SELECT 1
+
+mybatis:
+  type-aliases-package: kr.co.gmgo.rcs.api.biz
+  mapper-locations: repository/**/*.xml
+
+
+
+#log4jdbc:
+# spylogdelegator:
+#  name: net.sf.log4jdbc.log.slf4j.Slf4jSpyLogDelegator
+

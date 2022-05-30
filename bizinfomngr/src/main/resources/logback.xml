@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+    <!--220.185.11.98 :  /home/webmsg/rcs/biz/logs/-->
+    <!--192.168.0.208 :  /home/rcsmsg/biz/logs/-->
+    <!--1.240.13.203 :  /data2/rcsmsg/log/biz-->
+    <property name="LOGS_ABSOLUTE_PATH" value="/data2/rcsmsg/log/biz/" />
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>%d{HH:mm} %-5level %logger{36} - %msg%n</Pattern>
+        </layout>
+    </appender>
+
+    <appender name="bizLog" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss}:%-3relative][%thread] %-5level %logger{35} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--220.85.11.98 :  home/webmsg/rcs/biz/logs/bizLog.log-->
+        <!--192.168.0.208 : /home/rcsmsg/biz/logs/bizLog.log-->
+        <!--1.240.13.203 :  /data2/rcsmsg/log/biz/bizLog.log-->
+        <file>/data2/rcsmsg/log/biz/bizLog.log</file>
+        <encoder>
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss}:%-3relative][%thread] %-5level %logger{35} - %msg%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!--220.85.11.98 :  /home/webmsg/rcs/biz/logs/bizLog.%d{yyyy-MM-dd}.log-->
+            <!--192.168.0.208 :  /home/rcsmsg/biz/logs/-->
+            <!--1.240.13.203 :  /data2/rcsmsg/log/biz/bizLog.%d{yyyy-MM-dd}.log-->
+            <fileNamePattern>/data2/rcsmsg/log/biz/bizLog.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+
+    </appender>
+
+    <logger name="log.rcsLog" level="DEBUG" additivity="false">
+        <appender-ref ref="ROLLING"/>
+    </logger>
+
+    <logger name="jdbc.sqlonly" level="DEBUG" additivity="false">
+        <appender-ref ref="ROLLING" /><!-- sql문만 로그로 남기며 PreparedStatement일 경우 관련된 arfument값으로 대체된 sql문이 보여짐 -->
+    </logger>
+
+    <logger name="jdbc.sqltiming" level="DEBUG" additivity="false">
+        <appender-ref ref="ROLLING" /><!-- sql문과 해당 sql을 실행시키는데 수행된 시간정보 포함 -->
+    </logger>
+
+    <logger name="jdbc.resultsettable" level="INFO" additivity="false">
+        <appender-ref ref="ROLLING" />
+    </logger>
+    <root level="INFO">
+        <appender-ref ref="bizLog" />
+    </root>
+</configuration>
+
+

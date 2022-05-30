@@ -1,0 +1,469 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.gmgo.rcs.api.biz.mapper.TemplateMapper">
+
+    <update id="updateTemplate" parameterType="map">
+        UPDATE TEMPLATE PARTITION(${partition}) SET
+        UPDATE_ID  = #{update_id},
+        TEMPLATE_NAME = #{template_name},
+        MESSAGEBASE_FORM_ID = #{messagebase_form_id},
+        BRAND_ID = #{brand_id},
+        <if test="approval_reason neq null">
+            APPROVAL_REASON = #{approval_reason},
+        </if>
+        <if test="template_reg_dt neq null">
+            TEMPLATE_REG_DT =DATE_format(#{template_reg_dt}, '%Y-%m-%d %T'),
+        </if>
+        <if test="approval_dt neq null">
+            APPROVAL_DT = DATE_format(#{approval_dt}, '%Y-%m-%d %T'),
+        </if>
+        <if test="update_dt neq null">
+            UPDATE_DT = DATE_format(#{update_dt}, '%Y-%m-%d %T'),
+        </if>
+        <if test="reg_id neq null">
+            REG_ID = #{reg_id},
+        </if>
+        <if test="approval_result neq null">
+            APPROVAL_RESULT = #{approval_result},
+        </if>
+        <if test="card_type neq null">
+            card_type = #{card_type},
+        </if>
+        STATUS =  #{status},
+        MOD_DT = DATE_format(NOW(), '%Y-%m-%d %T'),
+        DEL_YN = 1
+        WHERE
+        MESSAGEBASE_ID = #{messagebase_id}
+    </update>
+
+    <update id="updateTemplateBtn" parameterType="map">
+        UPDATE TEMPLATE_BTN PARTITION(${partition}) SET
+        DEL_YN = 1,
+        MOD_DT = DATE_format(NOW(), '%Y-%m-%d %T')
+        WHERE 1=1
+        AND `MESSAGEBASE_ID` in (${messagebase_id})
+    </update>
+
+    <insert id="insertTemplate" parameterType="map">
+        INSERT INTO TEMPLATE PARTITION(${partition})(
+        MESSAGEBASE_ID, UPDATE_ID, TEMPLATE_NAME, MESSAGEBASE_FORM_ID ,BRAND_ID ,
+        <if test="approval_reason neq null">
+            APPROVAL_REASON,
+        </if>
+        <if test="template_reg_dt neq null">
+            TEMPLATE_REG_DT,
+        </if>
+        <if test="approval_dt neq null">
+            APPROVAL_DT ,
+        </if>
+        <if test="update_dt neq null">
+            UPDATE_DT ,
+        </if>
+        <if test="reg_id neq null">
+            REG_ID ,
+        </if>
+        <if test="approval_result neq null">
+            APPROVAL_RESULT,
+        </if>
+        <if test="card_type neq null">
+            card_type,
+        </if>
+        STATUS ,REG_DT
+        )VALUES(
+        #{messagebase_id}, #{update_id}, #{template_name},  #{messagebase_form_id}, #{brand_id},
+        <if test="approval_reason neq null">
+            #{approval_reason},
+        </if>
+        <if test="template_reg_dt neq null">
+            DATE_format(#{template_reg_dt}, '%Y-%m-%d %T'),
+        </if>
+        <if test="approval_dt neq null">
+            DATE_format(#{approval_dt}, '%Y-%m-%d %T'),
+        </if>
+        <if test="update_dt neq null">
+            DATE_format(#{update_dt}, '%Y-%m-%d %T'),
+        </if>
+        <if test="reg_id neq null">
+            #{reg_id},
+        </if>
+        <if test="approval_result neq null">
+            #{approval_result},
+        </if>
+        <if test="card_type neq null">
+            #{card_type},
+        </if>
+        #{status}, DATE_format(NOW(), '%Y-%m-%d %T')
+        )
+    </insert>
+
+    <update id="updateTemplateForm" parameterType="map">
+        UPDATE TEMPLATE_FORM set
+        BUTTONS_ALLOWED = #{buttons_allowed},
+        DESCRIPTION = #{description},
+        BTN_NAME_SIZE = #{btn_name_size},
+        MEDIA = #{media},
+        CARD_DESCRIPTION_SIZE = #{card_description_size},
+        PRODUCT_CODE = #{product_code},
+        CARD_TYPE = #{card_type},
+        TITLE = #{title},
+        MAX_BTN_CNT = #{max_btn_cnt},
+        GUIDE_LINE_CNT = #{guide_line_cnt},
+        AD_BODY_ALLOWED = #{ad_body_allowed},
+        AD_HEADER_ALLOWED = #{ad_header_allowed},
+        CARD_CNT = #{card_cnt},
+        DESCRIPTION_SIZE =  #{description_size},
+        MOD_DT = DATE_format(NOW(), '%Y-%m-%d %T'),
+        DEL_YN = 1,
+        MAX_TITLE_SIZE = #{max_title_size}
+        WHERE
+        FORM_ID = #{form_id}
+        AND DATE_format(REG_DT, '%Y-%m-%d') = DATE_format(now(), '%Y-%m-%d')
+    </update>
+
+    <insert id="insertTemplateForm" parameterType="map">
+        INSERT INRO TEMPLATE_FORM(
+        FORM_ID, BUTTONS_ALLOWED ,DESCRIPTION ,BTN_NAME_SIZE ,MEDIA ,
+        CARD_DESCRIPTION_SIZE ,PRODUCT_CODE ,CARD_TYPE ,TITLE ,MAX_BTN_CNT ,GUIDE_LINE_CNT,
+        AD_BODY_ALLOWED ,AD_HEADER_ALLOWED ,CARD_CNT ,DESCRIPTION_SIZE, MAX_TITLE_SIZE ,REG_DT
+        )VALUES(
+        #{form_id}, #{buttons_allowed}, #{description}, #{btn_name_size}, #{media},
+        #{card_description_size}, #{product_code}, #{card_type}, #{title}, #{max_btn_cnt}, #{guide_line_cnt},
+        #{ad_body_allowed}, #{ad_header_allowed}, #{card_cnt},  #{description_size}, #{max_title_size}, DATE_format(NOW(), '%Y-%m-%d %T') )
+    </insert>
+
+    <insert id="insertTemplateAuto" parameterType="map">
+        LOAD DATA LOCAL INFILE #{data} INTO TABLE TEMPLATE
+        character set utf8
+        FIELDS TERMINATED BY "`[$*#!@^]`"
+        LINES TERMINATED BY "`{$*@%}`"
+        IGNORE 1 LINES
+        (@approval_reason,
+        @update_id,
+        @approval_result,
+        @template_name,
+        @approval_dt,
+        @update_dt,
+        @messagebase_form_id,
+        @messagebase_id,
+        @reg_id,
+        @brand_id,
+        @template_reg_dt,
+        @status,
+        @reg_dt) set
+        `approval_reason` = @approval_reason,
+        `update_id` =@update_id,
+        `approval_result` =@approval_result,
+        `template_name` = @template_name,
+        `approval_dt` = @approval_dt,
+        `update_dt` = @update_dt,
+        `messagebase_form_id` = @messagebase_form_id,
+        `messagebase_id` = @messagebase_id,
+        `reg_id` = @reg_id,
+        `brand_id` = @brand_id,
+        `template_reg_dt` = @template_reg_dt,
+        `status` = @status,
+        `reg_dt` = #{regDate}
+    </insert>
+
+    <insert id="insertTemplates" parameterType="string">
+        LOAD DATA LOCAL INFILE #{value} INTO TABLE TEMPLATE
+        character set utf8
+        FIELDS TERMINATED BY "`[$*#!@^]`"
+        LINES TERMINATED BY "`{$*@%}`"
+        IGNORE 1 LINES
+        (@approval_reason, @update_id, @approval_result, @template_name, @approval_dt, @update_dt,
+        @messagebase_form_id, @messagebase_id,  @reg_id, @brand_id,
+        @template_reg_dt, @status,  @reg_dt) set
+        `approval_reason` = @approval_reason, `update_id` = @update_id,
+        `approval_result` = @approval_result,  `template_name` = @template_name, `approval_dt` = @approval_dt,
+        `update_dt` = @update_dt, `messagebase_form_id` = @messagebase_form_id, `messagebase_id` = @messagebase_id,  `reg_id` = @reg_id,
+        `brand_id` = @brand_id,  `template_reg_dt` = @template_reg_dt,  `status` = @status, `reg_dt` =  NOW();
+    </insert>
+
+    <insert id="insertTemplateBtn" parameterType="string">
+        LOAD DATA LOCAL INFILE #{value} INTO TABLE TEMPLATE_BTN
+        character set utf8
+        FIELDS TERMINATED BY "`[$*#!@^]`"
+        LINES TERMINATED BY "`{$*@%}`"
+        IGNORE 1 LINES
+        (@btn_type, @btn_link, @btn_name, @messagebase_id, @btn_num, @brand_id, @reg_dt) set
+        `btn_type` = @btn_type, `btn_link` = @btn_link,
+        `btn_name` = @btn_name, `messagebase_id` = @messagebase_id,`btn_num` = @btn_num, `brand_id` = @brand_id, `reg_dt` =  NOW()
+    </insert>
+
+    <insert id="insertTemplateFormAuto" parameterType="map">
+        LOAD DATA LOCAL INFILE #{data} INTO TABLE TEMPLATE_FORM
+        character set utf8
+        FIELDS TERMINATED BY "`[$*#!@^]`"
+        LINES TERMINATED BY "`{$*@%}`"
+        IGNORE 1 LINES
+        (@buttons_allowed, @max_title_size,  @form_id,  @description, @btn_name_size,
+        @media, @card_description_size, @product_code, @card_type, @title,
+        @max_btn_cnt, @guide_line_cnt, @ad_body_allowed,  @ad_header_allowed, @card_cnt, @description_size, @reg_dt) set
+        `buttons_allowed` = @buttons_allowed,`max_title_size` = @max_title_size,  `form_id` = @form_id,
+        `description` = @description,
+        `btn_name_size` = @btn_name_size,
+        `media` = @media, `card_description_size` = @card_description_size,  `product_code` = @product_code,
+        `card_type` = @card_type, `title` = @title,  `max_btn_cnt` = @max_btn_cnt,
+        `guide_line_cnt` = @guide_line_cnt,  `ad_body_allowed` = @ad_body_allowed,
+        `ad_header_allowed` = @ad_header_allowed, `card_cnt` = @card_cnt,`description_size` = @description_size,
+        `reg_dt` = #{regDate}
+    </insert>
+
+    <insert id="insertTemplateBasicAuto" parameterType="map">
+        LOAD DATA LOCAL INFILE #{data} INTO TABLE TEMPLATE_FORM
+        character set utf8
+        FIELDS TERMINATED BY "`[$*#!@^]`"
+        LINES TERMINATED BY "`{$*@%}`"
+        IGNORE 1 LINES
+        (@max_title_size, @buttons_allowed, @form_id,  @description, @btn_name_size,
+        @media, @card_description_size,@card_type, @title, @product_code,
+        @max_btn_cnt, @guide_line_cnt, @approval_result, @ad_body_allowed,  @ad_header_allowed, @card_cnt, @description_size, @status, @reg_dt) set
+        `max_title_size` = @max_title_size, `buttons_allowed` = @buttons_allowed, `form_id` = @form_id,
+        `description` = @description,
+        `btn_name_size` = @btn_name_size,
+        `media` = @media, `card_description_size` = @card_description_size,
+        `card_type` = @card_type, `title` = @title,   `product_code` = @product_code, `max_btn_cnt` = @max_btn_cnt,
+        `guide_line_cnt` = @guide_line_cnt, `approval_result` = @approval_result,  `ad_body_allowed` = @ad_body_allowed,
+        `ad_header_allowed` = @ad_header_allowed, `card_cnt` = @card_cnt, `description_size` = @description_size, `status` = @status, `reg_dt` = #{regDate}
+    </insert>
+
+    <select id="selectTemplateId" parameterType="map" resultType="integer">
+        SELECT COUNT(*) FROM TEMPLATE PARTITION(${partition})
+        WHERE MESSAGEBASE_ID = #{id}
+    </select>
+
+    <select id="selectTemplateFormId" parameterType="string" resultType="integer">
+        SELECT COUNT(*) FROM TEMPLATE_FORM WHERE form_id = #{id}
+        AND DATE_format(REG_DT, '%Y-%m-%d') = DATE_format(now(), '%Y-%m-%d')
+    </select>
+
+    <update id="updateTemplateDelete" parameterType="map">
+        UPDATE TEMPLATE PARTITION(${partition}) SET
+        `DEL_YN`  = 0,
+        `MOD_DT` = DATE_format(NOW(), '%Y-%m-%d %T')
+        WHERE 1=1
+        <if test ="brandId eq null">
+            <choose>
+                <when test = "dateChk eq 0">
+                    AND `MESSAGEBASE_ID` in (${messagebaseId})
+                </when>
+                <otherwise>
+                    AND  `MESSAGEBASE_ID` = #{messagebaseId}
+                </otherwise>
+            </choose>
+        </if>
+        <if test="brandId neq null">
+            AND BRAND_ID = #{brandId}
+        </if>
+    </update>
+
+    <update id="updateTemplateBtnDelete" parameterType="map">
+        UPDATE TEMPLATE_BTN PARTITION(${partition}) SET
+        `DEL_YN`  = 0,
+        `MOD_DT` = DATE_format(NOW(), '%Y-%m-%d %T')
+        WHERE 1=1
+        <if test ="brandId eq null">
+            <choose>
+                <when test = "dateChk eq 0">
+                    AND `MESSAGEBASE_ID` in (${messagebaseId})
+                </when>
+                <otherwise>
+                    AND  `MESSAGEBASE_ID` = #{messagebaseId}
+                </otherwise>
+            </choose>
+        </if>
+        <if test="brandId neq null">
+            AND BRAND_ID = #{brandId}
+        </if>
+
+    </update>
+
+
+    <update id="updateTemplateFormDelete" parameterType="map">
+        UPDATE TEMPLATE_FORM PARTITION(${partition}) SET
+        DEL_YN  = 0,
+        MOD_DT = DATE_format(NOW(), '%Y-%m-%d %T')
+        WHERE 1=1
+        <choose>
+            <when test = "dateChk eq 0">
+                AND `FORM_ID` in (${formId})
+                <choose>
+                    <when test = "product eq 4">
+                        AND PRODUCT_CODE = 4
+                    </when>
+                    <otherwise>
+                        AND PRODUCT_CODE != 4
+                    </otherwise>
+                </choose>
+            </when>
+            <otherwise>
+                AND  FORM_ID = #{messagebaseId}
+            </otherwise>
+        </choose>
+    </update>
+
+    <!--오늘, 어제 일자에 해당하는 템플릿 컬럼정보 concat하여 가져오기 List로 담아서 오기-->
+    <select id="todayTemplateList" parameterType="map" resultType="map">
+        SELECT
+        MESSAGEBASE_ID
+        <if test="del_yn eq null">
+            ,CONCAT_WS(MESSAGEBASE_ID,MESSAGEBASE_FORM_ID,BRAND_ID,PRODUCT_CODE,APPROVAL_RESULT,STATUS,DEL_YN)AS colAll
+        </if>
+        FROM TEMPLATE partition(${partition})
+        WHERE 1=1
+        <if test="notInId neq null">
+            AND MESSAGEBASE_ID not in(${notInId})
+        </if>
+        <!--and brand_id = #{brand_id}-->
+        <if test ="del_YN eq N">
+            AND del_yn =1
+        </if>
+
+    </select>
+
+    <select id="todayTemplateBtnList" parameterType="map" resultType="map">
+        SELECT
+        CONCAT_WS(MESSAGEBASE_ID,DEL_YN,BTN_NUM)as DEL_YN,
+        MESSAGEBASE_ID
+        FROM TEMPLATE_BTN partition(${partition})
+        WHERE 1=1
+        <if test="notInId neq null">
+            AND MESSAGEBASE_ID not in(${notInId})
+        </if>
+    </select>
+
+
+    <select id="selectDelTmpl" parameterType="map" resultType="string">
+        SELECT group_concat(MESSAGEBASE_ID)
+        FROM TEMPLATE partition(${yesterday})
+        WHERE MESSAGEBASE_ID NOT IN (
+        SELECT MESSAGEBASE_ID FROM TEMPLATE partition(${today}))
+    </select>
+
+    <select id="selectNewTmpl" parameterType="map" resultType="string">
+        SELECT group_concat(MESSAGEBASE_ID)
+        FROM TEMPLATE partition(${today})
+        WHERE MESSAGEBASE_ID NOT IN (
+        SELECT MESSAGEBASE_ID from TEMPLATE partition(${yesterday}))
+        AND del_yn = 1
+    </select>
+
+    <select id="selectDelTmplBtn" parameterType="map" resultType="string">
+        SELECT group_concat(MESSAGEBASE_ID)
+        FROM TEMPLATE_BTN partition(${yesterday})
+        WHERE MESSAGEBASE_ID NOT IN (
+        SELECT MESSAGEBASE_ID from TEMPLATE_BTN partition(${today}))
+    </select>
+
+    <select id="selectNewTmplBtn" parameterType="map" resultType="string">
+        SELECT group_concat(MESSAGEBASE_ID)
+        FROM TEMPLATE_BTN partition(${today})
+        WHERE MESSAGEBASE_ID NOT IN (
+        SELECT MESSAGEBASE_ID from TEMPLATE_BTN partition(${yesterday}))
+        AND del_yn = 1
+    </select>
+
+    <!--TEMPLATE FORM START-->
+    <!--오늘, 어제 일자에 해당하는 템플릿 컬럼정보 concat하여 가져오기 List로 담아서 오기-->
+    <select id="todayTemplateFormList" parameterType="map" resultType="map">
+        SELECT
+        FORM_ID,
+        CONCAT_WS(FORM_ID,PRODUCT_CODE,CARD_TYPE,MEDIA,TITLE,DESCRIPTION,CARD_CNT,APPROVAL_RESULT,STATUS,DEL_YN)AS colAll
+        FROM TEMPLATE_FORM partition(${partition})
+        where 1=1
+        <if test="notInId neq null">
+            and FORM_ID not in(${notInId})
+        </if>
+        <if test="dateChk eq 0">
+            <choose>
+                <when test = "product eq 4">
+                    and PRODUCT_CODE = 4
+                </when>
+                <otherwise>
+                    and PRODUCT_CODE != 4
+                </otherwise>
+            </choose>
+        </if>
+    </select>
+
+    <select id="selectDelTmplForm" parameterType="map" resultType="string">
+        SELECT group_concat(FORM_ID)
+        FROM TEMPLATE_FORM partition(${yesterday})
+        where FORM_ID not in (
+        SELECT FORM_ID from TEMPLATE_FORM partition(${today})
+        )
+    </select>
+
+    <select id="selectNewTmplForm" parameterType="map" resultType="string">
+        SELECT group_concat(FORM_ID)
+        FROM TEMPLATE_FORM partition(${today})
+        where FORM_ID not in (
+        SELECT FORM_ID from TEMPLATE_FORM partition(${yesterday})
+        )
+        and del_yn = 1
+    </select>
+
+    <select id="selectDelTmplList" resultType="string">
+        SELECT group_concat(MESSAGEBASE_ID)as chatList
+        FROM TEMPLATE PARTITION(${partition})
+        WHERE BRAND_ID = #{brandId}
+    </select>
+
+    <select id="selectDelTmplBtnList" resultType="string">
+        SELECT group_concat(a.MESSAGEBASE_ID)as btnList
+        from (
+        SELECT MESSAGEBASE_ID
+        FROM TEMPLATE_BTN PARTITION(${partition})
+        WHERE BRAND_ID = #{brandId}
+        group by MESSAGEBASE_ID
+        ) a
+
+    </select>
+
+    <select id="selectTemplateFormUpdateChk" parameterType="string" resultType="integer">
+        SELECT COUNT(*) FROM TEMPLATE_FORM PARTITION(${partition})
+        WHERE concat(
+        product_code,
+        card_type,
+        ifnull(media,"null"),
+        ifnull(title,"null"),
+        ifnull(description,"null"),
+        card_cnt,
+        ifnull(approval_result,"null"),
+        ifnull(status,"null"),
+        ifnull(max_title_size,"null")
+        ) = #{concat}
+        and FORM_ID  = #{formId}
+    </select>
+
+    <select id="selectTemplateUpdateChk" parameterType="string" resultType="integer">
+        select COUNT(*) FROM TEMPLATE PARTITION(${partition})
+        WHERE concat(messagebase_form_id,brand_id,approval_result,status) = #{concat}
+        and MESSAGEBASE_ID  = #{messagebaseId}
+    </select>
+
+    <update id="updateTemplateListDelete" parameterType="String">
+        update TEMPLATE PARTITION(${partition}) set
+        DEL_YN  = 0,
+        MOD_DT = DATE_format(NOW(), '%Y-%m-%d %T')
+        WHERE
+        MESSAGEBASE_ID not in (${value})
+    </update>
+
+    <update id="updateTemplateFormListDelete" parameterType="String">
+        update TEMPLATE_FORM PARTITION(${partition}) set
+        DEL_YN  = 0,
+        MOD_DT = DATE_format(NOW(), '%Y-%m-%d %T')
+        WHERE
+        FORM_ID not in (${id})
+        and product_code not in(${product})
+    </update>
+
+    <select id="selectBtnChk" parameterType="string" resultType="integer">
+        select COUNT(*) FROM TEMPLATE_BTN PARTITION(${partition})
+        WHERE 1=1
+        and MESSAGEBASE_ID  = #{messagebaseId}
+    </select>
+
+</mapper>

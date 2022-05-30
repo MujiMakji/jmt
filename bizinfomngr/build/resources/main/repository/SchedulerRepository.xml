@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.gmgo.rcs.api.biz.mapper.SchedulerMapper">
+
+    <update id="updateBrand" parameterType="map" >
+        ALTER TABLE BRAND TRUNCATE PARTITION ${value}
+    </update>
+
+    <update id="updateBrandFile" parameterType="map" >
+        ALTER TABLE BRAND_FILE TRUNCATE PARTITION ${value}
+    </update>
+
+    <update id="updateTemplate" parameterType="map" >
+        ALTER TABLE TEMPLATE TRUNCATE PARTITION ${value}
+    </update>
+
+    <!--<update id="updateTemplateBtn" parameterType="map" >
+        ALTER TABLE TEMPLATE_BTN TRUNCATE PARTITION ${value}
+    </update>-->
+
+    <update id="updateChatbot" parameterType="map" >
+        ALTER TABLE CHATBOT TRUNCATE PARTITION ${value}
+    </update>
+
+    <update id="updateTemplateForm" parameterType="map" >
+        ALTER TABLE TEMPLATE_FORM TRUNCATE PARTITION ${value}
+    </update>
+
+
+    <select id="selectBtnMaxIdx" parameterType="String" resultType="integer">
+        SELECT count(idx) FROM TEMPLATE_BTN
+    </select>
+
+
+</mapper>
